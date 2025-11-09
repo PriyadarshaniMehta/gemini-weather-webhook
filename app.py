@@ -42,7 +42,7 @@ def webhook():
     #  GENERAL CHAT USING GEMINI
     if GEMINI_API_KEY:
         try:
-            model = genai.GenerativeModel("gemini-pro")
+            model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(user_message)
             reply = response.text
             return jsonify({"fulfillmentText": reply})
