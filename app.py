@@ -20,11 +20,11 @@ def home():
 def webhook():
     data = request.get_json(silent=True, force=True)
 
-    # Extract user message from Dialogflow
-    user_message = data.get("queryResult", {}).get("queryText", "").lower()
+    # Extract user message
+    user_message = data.get("queryResult", {}).get("queryText", "")
 
-    #  WEATHER HANDLER (runs first)
-    if "weather" in user_message or "temperature" in user_message:
+    # WEATHER HANDLER
+    if "weather" in user_message.lower() or "temperature" in user_message.lower():
         try:
             url = "https://api.open-meteo.com/v1/forecast?latitude=28.625&longitude=77.25&current_weather=true"
             weather_json = requests.get(url).json()
@@ -39,18 +39,17 @@ def webhook():
         except Exception as e:
             return jsonify({"fulfillmentText": f"Weather API error: {str(e)}"})
 
-    #  GENERAL CHAT USING GEMINI
+
+    # GEMINI GENERAL CHAT
     if GEMINI_API_KEY:
         try:
             model = genai.GenerativeModel("models/gemini-1.5-flash")
             response = model.generate_content(user_message)
-            reply = response.text
-            return jsonify({"fulfillmentText": reply})
+            return jsonify({"fulfillmentText": response.text})
 
         except Exception as e:
             return jsonify({"fulfillmentText": f"Gemini error: {e}"})
-            
-        
+
 
     # FALLBACK
     return jsonify({"fulfillmentText": "I'm here to help!"})
@@ -58,4 +57,5 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
